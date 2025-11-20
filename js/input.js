@@ -6,30 +6,64 @@ export const keys = {
     space: false,
 };
 
-export function initInput(onSpace) {
-    window.addEventListener('keydown', (event) => {
-        if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Space'].includes(event.code)) {
-            event.preventDefault();
-        }
+const KEY_MAP = {
+    ArrowLeft: 'left',
+    ArrowRight: 'right',
+    ArrowUp: 'up',
+    ArrowDown: 'down',
+    Space: 'space',
+};
 
-        if (event.code === 'ArrowLeft') {
-            keys.left = true;
-        } else if (event.code === 'ArrowRight') {
-            keys.right = true;
-        } else if (event.code === 'ArrowUp') {
-            keys.up = true;
-        } else if (event.code === 'ArrowDown') {
-            keys.down = true;
-        } else if (event.code === 'Space') {
-            keys.space = true;
-        }
+export function initInput(onStart = () => {}) {
+    const handleKeyDown = (event) => {
+        const key = KEY_MAP[event.code];
+        if (!key) return;
+        event.preventDefault();
+
+        onStart();
+        keys[key] = true;
+    };
+
+    const handleKeyUp = (event) => {
+        const key = KEY_MAP[event.code];
+        if (!key) return;
+        event.preventDefault();
+        keys[key] = false;
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('blur', () => {
+        Object.keys(keys).forEach((key) => { keys[key] = false; });
     });
 
-    window.addEventListener('keyup', (event) => {
-        if (event.code === 'ArrowLeft') {
-            keys.left = false;
-        } else if (event.code === 'ArrowRight') {
-            keys.right = false;
-        }
+    setupButtonControls(onStart);
+}
+
+function setupButtonControls(onStart) {
+    const buttons = document.querySelectorAll('[data-control]');
+
+    buttons.forEach((button) => {
+        const control = button.dataset.control;
+        if (!control) return;
+
+        const press = (event) => {
+            event.preventDefault();
+            onStart();
+            keys[control] = true;
+            button.classList.add('is-pressed');
+        };
+
+        const release = (event) => {
+            event.preventDefault();
+            keys[control] = false;
+            button.classList.remove('is-pressed');
+        };
+
+        button.addEventListener('pointerdown', press);
+        button.addEventListener('pointerup', release);
+        button.addEventListener('pointercancel', release);
+        button.addEventListener('pointerleave', release);
+        button.addEventListener('blur', release);
     });
 }

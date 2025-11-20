@@ -23,7 +23,6 @@ export class Game {
             }
         });
 
-        this.reset();
         this.loop = this.loop.bind(this);
         requestAnimationFrame(this.loop);
     }
@@ -34,7 +33,7 @@ export class Game {
 
     triggerCrash(cause = 'generic', x = 0, y = 0) {
         state.status = 'gameover';
-        state.message = 'CRASHED! PRESS SPACE';
+        state.message = 'CRASHED! TAP ANY BUTTON OR PRESS SPACE';
 
         // Blood for obstacle if applicable
         if (cause === 'pedestrian') {
@@ -95,6 +94,8 @@ export class Game {
         // Slower difficulty ramp: max 1.4x after 3 minutes (180000ms) instead of 1 minute
         const difficultyRamp = 1 + Math.min(state.elapsed / 180000, 0.4);
         state.difficulty = difficultyRamp;
+        // Display a road speed starting at 25 km/h, climbing by ~1 km/h every 5 seconds of play
+        state.speedKmh = Math.min(120, Math.floor(25 + state.elapsed / 5000));
         this.updateCounters();
 
         state.spawnInterval = Math.max(700, 2200 - state.elapsed / 40); // Slower spawn rate increase
@@ -150,7 +151,7 @@ export class Game {
         this.drawHUD();
 
         if (state.status !== 'playing') {
-            this.drawMessage(state.message || 'PRESS SPACE TO START');
+            this.drawMessage(state.message || 'TAP ANY BUTTON OR PRESS SPACE');
         }
     }
 
@@ -160,7 +161,7 @@ export class Game {
         this.ctx.textAlign = 'left';
         this.ctx.textBaseline = 'top';
         this.ctx.fillText(`SCORE ${state.avoided}`, 20, 20);
-        this.ctx.fillText(`SPEED ${state.difficulty.toFixed(1)}x`, 20, 50);
+        this.ctx.fillText(`SPEED ${state.speedKmh} km/h`, 20, 50);
 
         if (state.boss.car) {
             this.ctx.fillStyle = '#ff0000'; // Alert color
@@ -190,9 +191,9 @@ export class Game {
         // but we are drawing to canvas now for the retro feel.
         // We can remove the DOM counters or keep them as backup.
         const avoidedEl = document.getElementById('avoidedCount');
-        const challengeEl = document.getElementById('challengeLevel');
+        const speedEl = document.getElementById('challengeLevel');
         if (avoidedEl) avoidedEl.textContent = state.avoided.toString();
-        if (challengeEl) challengeEl.textContent = `${state.difficulty.toFixed(1)}x`;
+        if (speedEl) speedEl.textContent = `${state.speedKmh} km/h`;
     }
 
     loop(timestamp) {

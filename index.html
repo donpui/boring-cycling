@@ -17,15 +17,24 @@
           Avoided: <span id="avoidedCount">0</span>
         </div>
         <div>
-          Challenge: <span id="challengeLevel">1.0x</span>
+          Speed: <span id="challengeLevel">25 km/h</span>
         </div>
       </div>
     </header>
     <section class="stage">
       <canvas id="gameCanvas" width="360" height="640" aria-label="Bicycle endless runner"></canvas>
       <p class="instructions">
-        Use the left and right arrow keys to move the bicycle. Press space to start or restart.
+        Use the on-screen buttons on mobile or arrow keys on desktop.
       </p>
+      <div class="controls" aria-label="Touch controls">
+        <div class="controls__row">
+          <button class="control-btn" type="button" aria-label="Move left" data-control="left">Left</button>
+          <button class="control-btn" type="button" aria-label="Move right" data-control="right">Right</button>
+          <button class="control-btn" type="button" aria-label="Move down" data-control="down">Down</button>
+          <button class="control-btn" type="button" aria-label="Move up" data-control="up">Up</button>
+        </div>
+
+      </div>
     </section>
   </main>
   <script type="module" src="main.js"></script>
