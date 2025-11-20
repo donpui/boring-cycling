@@ -157,32 +157,57 @@ export class Game {
 
     drawHUD() {
         this.ctx.fillStyle = '#000000';
-        this.ctx.font = '20px "Press Start 2P", monospace';
+        this.ctx.font = '16px "Press Start 2P", monospace';
         this.ctx.textAlign = 'left';
         this.ctx.textBaseline = 'top';
-        this.ctx.fillText(`SCORE ${state.avoided}`, 20, 20);
-        this.ctx.fillText(`SPEED ${state.speedKmh} km/h`, 20, 50);
+        const hudText = `SCORE ${state.avoided}   SPEED ${state.speedKmh} km/h`;
+        this.ctx.fillText(hudText, 12, 8);
 
         if (state.boss.car) {
             this.ctx.fillStyle = '#ff0000'; // Alert color
-            this.ctx.fillText('BOSS!', 20, 80);
+            this.ctx.fillText('BOSS!', 12, 32);
         }
     }
 
     drawMessage(text) {
         this.ctx.save();
+        const padding = 14;
+        const boxWidth = this.canvas.width - 24; // leave small margin
+        const maxTextWidth = boxWidth - padding * 2;
+        const lineHeight = 22;
+
+        this.ctx.font = '18px "Press Start 2P", monospace';
+        const lines = [];
+        const words = text.split(' ');
+        let current = '';
+        for (const word of words) {
+            const testLine = current ? `${current} ${word}` : word;
+            if (this.ctx.measureText(testLine).width <= maxTextWidth) {
+                current = testLine;
+            } else {
+                if (current) lines.push(current);
+                current = word;
+            }
+        }
+        if (current) lines.push(current);
+
+        const boxHeight = lines.length * lineHeight + padding * 2;
+        const boxX = (this.canvas.width - boxWidth) / 2;
+        const boxY = (this.canvas.height - boxHeight) / 2;
+
         this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-        this.ctx.fillRect(this.canvas.width / 2 - 300, this.canvas.height / 2 - 40, 600, 80);
+        this.ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
 
         this.ctx.strokeStyle = '#000000';
         this.ctx.lineWidth = 4;
-        this.ctx.strokeRect(this.canvas.width / 2 - 300, this.canvas.height / 2 - 40, 600, 80);
+        this.ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
 
         this.ctx.fillStyle = '#000000';
-        this.ctx.font = '24px "Press Start 2P", monospace';
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
-        this.ctx.fillText(text, this.canvas.width / 2, this.canvas.height / 2);
+        this.ctx.textAlign = 'left';
+        this.ctx.textBaseline = 'top';
+        lines.forEach((line, index) => {
+            this.ctx.fillText(line, boxX + padding, boxY + padding + index * lineHeight);
+        });
         this.ctx.restore();
     }
 

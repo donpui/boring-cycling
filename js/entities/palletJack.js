@@ -64,10 +64,11 @@ export function updatePalletJacks(seconds, speedMultiplier, bikeLowerRect, trigg
 
         jack.y = ROAD_PARAMS.horizon + (CANVAS_HEIGHT - ROAD_PARAMS.horizon) * depth - jack.currentHeight;
 
+        // Nudge the body farther onto the shoulder so it blocks less of the lane
         if (jack.side === 'left') {
-            jack.x = roadLeft - jack.currentWidth * 0.5; // Half on shoulder
+            jack.x = roadLeft - jack.currentWidth * 0.85;
         } else {
-            jack.x = roadRight - jack.currentWidth * 0.5;
+            jack.x = roadRight - jack.currentWidth * 0.15;
         }
 
         // Collision box for forks
@@ -110,26 +111,63 @@ export function drawPalletJacks(ctx) {
         if (jack.progress < 0 || jack.progress > 1.1) continue;
 
         ctx.save();
-        ctx.fillStyle = '#fbc02d'; // Yellow jack
+        // Mirror the art if the tractor is on the right shoulder so it still faces the road
+        ctx.translate(jack.x, jack.y);
+        if (jack.side === 'right') {
+            ctx.translate(jack.currentWidth, 0);
+            ctx.scale(-1, 1);
+        }
 
-        // Body
-        ctx.fillRect(jack.x, jack.y, jack.currentWidth, jack.currentHeight);
+        const w = jack.currentWidth;
+        const h = jack.currentHeight;
+        const baseHeight = h * 0.45;
+        const baseY = h - baseHeight;
 
-        // Handle
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 2;
+        // Wheels
+        const rearR = h * 0.18;
+        const frontR = h * 0.14;
+        ctx.fillStyle = '#1e1e1e';
         ctx.beginPath();
-        ctx.moveTo(jack.x + jack.currentWidth / 2, jack.y);
-        ctx.lineTo(jack.x + jack.currentWidth / 2, jack.y - jack.currentHeight * 0.8);
-        ctx.stroke();
+        ctx.arc(w * 0.28, h - rearR * 0.9, rearR, 0, Math.PI * 2);
+        ctx.arc(w * 0.72, h - frontR * 0.9, frontR, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Tractor body
+        ctx.fillStyle = '#2f7b3c';
+        ctx.fillRect(w * 0.1, baseY, w * 0.65, baseHeight);
+
+        // Engine/front block
+        ctx.fillStyle = '#3f8d4c';
+        ctx.fillRect(w * 0.65, baseY + baseHeight * 0.15, w * 0.22, baseHeight * 0.85);
+
+        // Cab
+        ctx.fillStyle = '#b3e5fc';
+        const cabWidth = w * 0.35;
+        const cabHeight = h * 0.42;
+        ctx.fillRect(w * 0.16, baseY - cabHeight + 6, cabWidth, cabHeight);
+        ctx.fillStyle = '#2f7b3c';
+        ctx.fillRect(w * 0.14, baseY - cabHeight, cabWidth + w * 0.12, 6); // roof line
+
+        // Mast for forks
+        ctx.fillStyle = '#4a4a4a';
+        const mastWidth = w * 0.06;
+        const mastHeight = baseHeight + h * 0.25;
+        const mastX = w * 0.94;
+        ctx.fillRect(mastX, baseY - h * 0.15, mastWidth, mastHeight);
+        ctx.fillRect(mastX - 4, baseY, mastWidth + 8, 6); // crossbar
 
         // Forks
-        ctx.fillStyle = '#fdd835';
-        if (jack.side === 'left') {
-            ctx.fillRect(jack.x + jack.currentWidth, jack.y + jack.currentHeight * 0.7, jack.currentForkLength, jack.currentHeight * 0.2);
-        } else {
-            ctx.fillRect(jack.x - jack.currentForkLength, jack.y + jack.currentHeight * 0.7, jack.currentForkLength, jack.currentHeight * 0.2);
-        }
+        const forkThickness = baseHeight * 0.13;
+        const forkY = baseY + baseHeight * 0.65;
+        ctx.fillRect(w, forkY, jack.currentForkLength, forkThickness);
+        ctx.fillRect(w, forkY + forkThickness + 4, jack.currentForkLength * 0.9, forkThickness);
+
+        // Outline for a chunkier, pixel-truck feel
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(0, baseY, w * 0.87, baseHeight); // body outline
+        ctx.strokeRect(w * 0.65, baseY + baseHeight * 0.15, w * 0.22, baseHeight * 0.85); // engine outline
+        ctx.strokeRect(w * 0.16, baseY - cabHeight + 6, cabWidth, cabHeight); // cab outline
 
         ctx.restore();
     }

@@ -15,8 +15,8 @@ export function drawBicycle(ctx) {
     const seat = { x: bike.width * 0.42, y: bike.height * 0.34 };
     const handle = { x: frontWheelX + 8, y: bike.height * 0.2 };
     const crankCenter = { x: bike.width * 0.5, y: bike.height * 0.62 };
-    const crankRadius = 18;
-    const crankAngle = state.wheelRotation * 1.5;
+    const crankRadius = 16;
+    const crankAngle = state.wheelRotation * 0.4;
 
     // Wheels (Pixelated circles)
     drawPixelWheel(ctx, rearWheelX, wheelY, wheelRadius);

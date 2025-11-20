@@ -1,5 +1,5 @@
 export const CANVAS_WIDTH = 360;
-export const CANVAS_HEIGHT = 640;
+export const CANVAS_HEIGHT = 560;
 
 export const PALETTE = {
     background: '#ffffff',
@@ -32,12 +32,12 @@ export const ROAD_PARAMS = {
     bottomWidth: 320,
     topWidth: 80,
     shoulder: 20,
-    horizon: 150,
+    horizon: 50,
 };
 
 export const PALLET_JACK_PARAMS = {
-    width: 60,
-    height: 40,
-    forkLength: 50,
+    width: 90,
+    height: 60,
+    forkLength: 70,
     spawnInterval: 8000, // Every 8 seconds
 };
