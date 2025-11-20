@@ -1,0 +1,62 @@
+:root {
+  font-family: 'Press Start 2P', 'VT323', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  background-color: #f7f7f7;
+  color: #333;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.app {
+  width: min(960px, 100%);
+  padding: 2rem 1.5rem 3rem;
+}
+
+.hud {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.hud h1 {
+  font-size: clamp(1.2rem, 2vw, 1.8rem);
+  margin: 0;
+}
+
+.counters {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.stage {
+  margin-top: 1.5rem;
+}
+
+canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: transparent;
+  border-radius: 10px;
+  image-rendering: pixelated;
+}
+
+.instructions {
+  margin: 0.8rem 0 0;
+  font-size: 0.85rem;
+  color: #555;
+  text-align: center;
+}
