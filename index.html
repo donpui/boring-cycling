@@ -1,31 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Boring Bicycle Dash</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <main class="app">
-      <header class="hud">
-        <h1>Boring Bicycle Dash</h1>
-        <div class="counters">
-          <div>
-            Avoided: <span id="avoidedCount">0</span>
-          </div>
-          <div>
-            Challenge: <span id="challengeLevel">1.0x</span>
-          </div>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Boring Bicycle Dash</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <main class="app">
+    <header class="hud">
+      <h1>Boring Bicycle Dash</h1>
+      <div class="counters">
+        <div>
+          Avoided: <span id="avoidedCount">0</span>
         </div>
-      </header>
-      <section class="stage">
-        <canvas id="gameCanvas" width="900" height="420" aria-label="Bicycle endless runner"></canvas>
-        <p class="instructions">
-          Use the left and right arrow keys to move the bicycle. Press space to start or restart.
-        </p>
-      </section>
-    </main>
-    <script type="module" src="main.js"></script>
-  </body>
+        <div>
+          Speed: <span id="challengeLevel">25 km/h</span>
+        </div>
+      </div>
+    </header>
+    <section class="stage">
+      <canvas id="gameCanvas" width="360" height="560" aria-label="Bicycle endless runner"></canvas>
+      <p class="instructions">
+        Use the on-screen buttons on mobile or arrow keys on desktop.
+      </p>
+      <div class="controls" aria-label="Touch controls">
+        <div class="controls__row">
+          <button class="control-btn" type="button" aria-label="Move left" data-control="left">Left</button>
+          <button class="control-btn" type="button" aria-label="Move up" data-control="up">Up</button>
+          <button class="control-btn" type="button" aria-label="Move down" data-control="down">Down</button>
+          <button class="control-btn" type="button" aria-label="Move right" data-control="right">Right</button>
+        </div>
+
+      </div>
+    </section>
+  </main>
+  <script type="module" src="main.js"></script>
+</body>
+
 </html>
