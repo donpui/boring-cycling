@@ -9,13 +9,17 @@ import { updatePalletJacks, drawPalletJacks } from './entities/palletJack.js';
 import { drawBloodSplat } from './entities/effects.js';
 import { checkCollision } from './utils.js';
 
+const INSTRUCTIONS_TEXT = 'Use the on-screen buttons on mobile or arrow keys on desktop.';
+
 export class Game {
-    constructor(canvas) {
+    constructor(canvas, callbacks = {}) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
         this.ctx.imageSmoothingEnabled = false; // Important for pixel art
 
         this.lastTime = 0;
+        this.callbacks = callbacks;
+        this.isGameRunning = false;
 
         initInput(() => {
             if (state.status !== 'playing') {
@@ -29,6 +33,10 @@ export class Game {
 
     reset() {
         resetState();
+        this.isGameRunning = true;
+        if (typeof this.callbacks.onGameStart === 'function') {
+            this.callbacks.onGameStart();
+        }
     }
 
     triggerCrash(cause = 'generic', x = 0, y = 0) {
@@ -45,6 +53,13 @@ export class Game {
             x: state.bicycle.x + state.bicycle.width / 2,
             y: state.bicycle.y + state.bicycle.height
         });
+
+        if (this.isGameRunning) {
+            this.isGameRunning = false;
+            if (typeof this.callbacks.onGameOver === 'function') {
+                this.callbacks.onGameOver(state.avoided, state.topSpeed);
+            }
+        }
     }
 
     update(delta) {
@@ -96,6 +111,7 @@ export class Game {
         state.difficulty = difficultyRamp;
         // Display a road speed starting at 25 km/h, climbing by ~1 km/h every 5 seconds of play
         state.speedKmh = Math.min(120, Math.floor(25 + state.elapsed / 5000));
+        state.topSpeed = Math.max(state.topSpeed, state.speedKmh);
         this.updateCounters();
 
         state.spawnInterval = Math.max(700, 2200 - state.elapsed / 40); // Slower spawn rate increase
@@ -177,19 +193,33 @@ export class Game {
         const lineHeight = 22;
 
         this.ctx.font = '18px "Press Start 2P", monospace';
-        const lines = [];
-        const words = text.split(' ');
-        let current = '';
-        for (const word of words) {
-            const testLine = current ? `${current} ${word}` : word;
-            if (this.ctx.measureText(testLine).width <= maxTextWidth) {
-                current = testLine;
-            } else {
-                if (current) lines.push(current);
-                current = word;
+
+        const wrapText = (content) => {
+            if (!content) return [];
+            const lines = [];
+            const words = content.split(' ');
+            let current = '';
+            for (const word of words) {
+                const testLine = current ? `${current} ${word}` : word;
+                if (this.ctx.measureText(testLine).width <= maxTextWidth) {
+                    current = testLine;
+                } else {
+                    if (current) lines.push(current);
+                    current = word;
+                }
             }
+            if (current) lines.push(current);
+            return lines;
+        };
+
+        const lines = wrapText(text);
+        const instructionLines = wrapText(INSTRUCTIONS_TEXT);
+        if (instructionLines.length) {
+            if (lines.length) {
+                lines.push('');
+            }
+            lines.push(...instructionLines);
         }
-        if (current) lines.push(current);
 
         const boxHeight = lines.length * lineHeight + padding * 2;
         const boxX = (this.canvas.width - boxWidth) / 2;

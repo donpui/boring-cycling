@@ -28,6 +28,7 @@ export function spawnPalletJack() {
         forkLength: PALLET_JACK_PARAMS.forkLength,
         speed: 0, // They move with the road (relative speed handled by update)
         progress: 0, // 0 to 1 travel from horizon to bottom
+        scored: false,
     };
 
     state.palletJacks.push(jack);
@@ -46,6 +47,11 @@ export function updatePalletJacks(seconds, speedMultiplier, bikeLowerRect, trigg
         // Move "down" the screen as player moves forward
         // We need to simulate Z-depth movement
         jack.progress += seconds * 0.15 * speedMultiplier; // Speed of approach
+
+        if (!jack.scored && jack.progress > 1) {
+            jack.scored = true;
+            state.avoided += 2;
+        }
 
         if (jack.progress > 1.2) {
             jack.remove = true;

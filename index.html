@@ -4,39 +4,102 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Boring Bicycle Dash</title>
+  
+  <!-- Primary Meta Tags -->
+  <title>Boring Cycling - Endless Bicycle Runner Game</title>
+  <meta name="title" content="Boring Cycling - Endless Bicycle Runner Game" />
+  <meta name="description" content="An endless runner game where you control a bicycle and avoid obstacles. Play on desktop or mobile, track your scores, and compete on the leaderboard!" />
+  <meta name="keywords" content="bicycle game, endless runner, bike game, HTML5 game, canvas game, mobile game, browser game, cycling game" />
+  <meta name="author" content="Boring Cycling" />
+  <meta name="robots" content="index, follow" />
+  <meta name="language" content="English" />
+  <meta name="theme-color" content="#000000" />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Boring Cycling - Endless Bicycle Runner Game" />
+  <meta property="og:description" content="An endless runner game where you control a bicycle and avoid obstacles. Play on desktop or mobile, track your scores, and compete on the leaderboard!" />
+  <meta property="og:site_name" content="Boring Cycling" />
+  <meta property="og:image" content="og-image.png" />
+  <!-- <meta property="og:url" content="https://yourdomain.com" /> -->
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Boring Cycling - Endless Bicycle Runner Game" />
+  <meta name="twitter:description" content="An endless runner game where you control a bicycle and avoid obstacles. Play on desktop or mobile, track your scores, and compete on the leaderboard!" />
+  <meta name="twitter:image" content="og-image.png" />
+  
+  <!-- Canonical URL - Update with your actual domain when deployed -->
+  <!-- <link rel="canonical" href="https://yourdomain.com" /> -->
+  
+  <link rel="icon" href="favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" href="icon.png" />
+  <link rel="apple-touch-icon" href="icon.png" />
+  
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
   <main class="app">
     <header class="hud">
-      <h1>Boring Bicycle Dash</h1>
-      <div class="counters">
-        <div>
-          Avoided: <span id="avoidedCount">0</span>
-        </div>
-        <div>
-          Speed: <span id="challengeLevel">25 km/h</span>
-        </div>
-      </div>
+      <h1>Boring Cycling</h1>
     </header>
-    <section class="stage">
-      <canvas id="gameCanvas" width="360" height="560" aria-label="Bicycle endless runner"></canvas>
-      <p class="instructions">
-        Use the on-screen buttons on mobile or arrow keys on desktop.
-      </p>
-      <div class="controls" aria-label="Touch controls">
-        <div class="controls__row">
-          <button class="control-btn" type="button" aria-label="Move left" data-control="left">Left</button>
-          <button class="control-btn" type="button" aria-label="Move up" data-control="up">Up</button>
-          <button class="control-btn" type="button" aria-label="Move down" data-control="down">Down</button>
-          <button class="control-btn" type="button" aria-label="Move right" data-control="right">Right</button>
-        </div>
+    <section class="layout">
+      <section class="stage">
+        <canvas id="gameCanvas" width="360" height="560" aria-label="Bicycle endless runner"></canvas>
+        <div class="controls" aria-label="Touch controls">
+          <div class="controls__row">
+            <button class="control-btn" type="button" aria-label="Move left" data-control="left">Left</button>
+            <button class="control-btn" type="button" aria-label="Move up" data-control="up">Up</button>
+            <button class="control-btn" type="button" aria-label="Move down" data-control="down">Down</button>
+            <button class="control-btn" type="button" aria-label="Move right" data-control="right">Right</button>
+          </div>
 
+        </div>
+      </section>
+      <div class="sidebar">
+        <section class="stats panel">
+          <h2>Ride Stats</h2>
+          <div class="stats__row">
+            <span>Total rides</span>
+            <strong id="overallRides">0</strong>
+          </div>
+          <div class="stats__row">
+            <span id="playerRidesLabel">Your rides</span>
+            <strong id="playerRides">0</strong>
+          </div>
+          <p id="playerRidesHint" class="stats__hint">Set a name to track your rides.</p>
+        </section>
+        <section class="leaderboard panel">
+          <div class="panel__header">
+            <h2>Top Riders</h2>
+            <button id="refreshLeaderboard" class="panel__refresh" type="button" aria-label="Refresh leaderboard">↻</button>
+          </div>
+          <ol id="leaderboardList" class="leaderboard__list" aria-live="polite"></ol>
+          <p id="leaderboardEmpty" class="leaderboard__empty">Loading leaderboard...</p>
+        </section>
+        <section class="score-submit panel" aria-live="polite" hidden>
+          <h2>Save Your Run</h2>
+          <p>Every ride is logged. Add your name to appear on the leaderboard.</p>
+          <form id="scoreForm" class="score-form">
+            <div class="score-form__row">
+              <span>Last score:</span>
+              <strong id="lastScore">0</strong>
+            </div>
+            <label class="score-form__label">
+              <span>Name (optional)</span>
+              <input type="text" id="playerName" name="playerName" placeholder="Bill On Bike" maxlength="64" autocomplete="off">
+            </label>
+            <button type="submit" id="saveScoreButton">Save score</button>
+            <p id="scoreStatus" class="score-form__status" role="status"></p>
+          </form>
+        </section>
       </div>
     </section>
   </main>
+  <footer class="site-footer">
+    <small>&copy; <span id="footerYear"></span> Boring Cycling · <a href="https://github.com/donpui/boring-cycling" target="_blank" rel="noopener noreferrer">GitHub</a></small>
+  </footer>
   <script type="module" src="main.js"></script>
 </body>
 

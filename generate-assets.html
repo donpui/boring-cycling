@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Generator - Boring Cycling</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            padding: 2rem;
+            background: #f0f0f0;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .asset-group {
+            background: white;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 { margin-top: 0; }
+        canvas {
+            border: 1px solid #ccc;
+            background: white; /* Default checks, but we'll clear for transparency */
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        .checkerboard {
+            background-image: linear-gradient(45deg, #eee 25%, transparent 25%), linear-gradient(-45deg, #eee 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #eee 75%), linear-gradient(-45deg, transparent 75%, #eee 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+        button {
+            padding: 0.5rem 1rem;
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        button:hover {
+            background: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Boring Cycling - Asset Generator</h1>
+    <p>These images are generated using the game's actual code. Click the buttons to download them.</p>
+
+    <div class="asset-group">
+        <h2>1. Favicon / Apple Touch Icon</h2>
+        <p>Square icon with transparent background.</p>
+        <canvas id="iconCanvas" width="512" height="512" class="checkerboard"></canvas>
+        <button onclick="download('iconCanvas', 'icon.png')">Download Icon (PNG)</button>
+        <button onclick="download('iconCanvas', 'favicon.ico')">Download as .ico (rename after)</button>
+    </div>
+
+    <div class="asset-group">
+        <h2>2. Open Graph / Twitter Card</h2>
+        <p>1200x630 social sharing image.</p>
+        <canvas id="ogCanvas" width="1200" height="630"></canvas>
+        <button onclick="download('ogCanvas', 'og-image.png')">Download Social Card</button>
+    </div>
+
+    <!-- Load font first -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+    <script type="module">
+        import { drawBicycle } from './js/entities/bicycle.js';
+        import { state } from './js/state.js';
+        import { PALETTE } from './js/constants.js';
+
+        // Wait for font to load
+        document.fonts.ready.then(() => {
+            generateIcon();
+            generateOG();
+        });
+
+        function generateIcon() {
+            const canvas = document.getElementById('iconCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // The bike dimensions are approx 100x66 based on constants
+            // To fit in 512x512 with some padding:
+            // 512 / 100 = 5.12 max scale. Let's use 4 to be safe and add padding.
+            const scale = 3.5; 
+            
+            // Center the bike
+            // Note: drawBicycle draws relative to 0,0 of the context if we translate correctly
+            state.bicycle.width = 100;
+            state.bicycle.height = 66;
+            
+            // Calculate centered position
+            // Canvas center is width/2, height/2
+            // We need to offset by half the scaled bike size
+            const scaledWidth = state.bicycle.width * scale;
+            const scaledHeight = state.bicycle.height * scale;
+            
+            state.bicycle.x = (canvas.width - scaledWidth) / 2 / scale;
+            state.bicycle.y = (canvas.height - scaledHeight) / 2 / scale;
+            state.bicycle.sway = 0;
+            state.wheelRotation = Math.PI / 4; 
+
+            ctx.save();
+            ctx.scale(scale, scale);
+            drawBicycle(ctx);
+            ctx.restore();
+        }
+
+        function generateOG() {
+            const canvas = document.getElementById('ogCanvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+
+            // 1. White Background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, width, height);
+            
+            // 2. Draw a stylized road (Outlined, not filled black, so bike is visible)
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 8;
+            ctx.beginPath();
+            
+            // Road Horizon Line
+            ctx.moveTo(width * 0.1, height * 0.45);
+            ctx.lineTo(width * 0.9, height * 0.45);
+            
+            // Left Road Edge
+            ctx.moveTo(width * 0.45, height * 0.45);
+            ctx.lineTo(width * 0.1, height);
+            
+            // Right Road Edge
+            ctx.moveTo(width * 0.55, height * 0.45);
+            ctx.lineTo(width * 0.9, height);
+            
+            // Dashed Center Line
+            ctx.save();
+            ctx.strokeStyle = '#888888'; // Lighter gray for the road marking
+            ctx.setLineDash([40, 40]);
+            ctx.beginPath();
+            ctx.moveTo(width * 0.5, height * 0.45);
+            ctx.lineTo(width * 0.5, height);
+            ctx.stroke();
+            ctx.restore();
+            
+            // Stroke the main road outline
+            ctx.stroke();
+
+            // 3. Draw Text
+            ctx.fillStyle = '#000000';
+            ctx.textAlign = 'left';
+            
+            // Main Title
+            ctx.font = '80px "Press Start 2P"';
+            ctx.fillText("BORING", 50, 120);
+            ctx.fillText("CYCLING", 50, 220);
+            
+            // Subtitle
+            ctx.font = '30px "Press Start 2P"';
+            ctx.fillText("ENDLESS CYCLING", 50, 280);
+
+            // 4. Draw Bike
+            const bikeScale = 4.5;
+            
+            // Reset state for drawing
+            state.bicycle.width = 100;
+            state.bicycle.height = 66;
+            state.bicycle.x = 0;
+            state.bicycle.y = 0;
+            state.bicycle.sway = -5;
+            state.wheelRotation = Math.PI / 2;
+
+            ctx.save();
+            // Move bike further right (0.55 -> 0.65) to avoid aligning with center line
+            ctx.translate(width * 0.65, height * 0.5); 
+            ctx.scale(bikeScale, bikeScale);
+            
+            drawBicycle(ctx);
+            ctx.restore();
+
+            // 5. Border
+            ctx.lineWidth = 20;
+            ctx.strokeStyle = '#000000';
+            ctx.strokeRect(0, 0, width, height);
+        }
+
+        window.download = function(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
+</body>
+</html>
