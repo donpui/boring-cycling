@@ -28,6 +28,8 @@ body {
 
 .hud {
   display: flex;
+  justify-content: center;
+  align-self: stretch;
 }
 @media (pointer: coarse) {
   .hud {
@@ -51,15 +53,6 @@ canvas {
   display: block;
   background: #ffffff;
   image-rendering: pixelated;
-}
-
-.instructions {
-  margin: 0.8rem 0 0;
-  font-size: 0.85rem;
-  color: #000;
-  text-align: center;
-  font-family: 'Press Start 2P', monospace;
-  text-transform: uppercase;
 }
 
 .controls {
@@ -144,6 +137,33 @@ canvas {
   border: 4px solid #000;
   padding: 1rem;
   background: #fff;
+}
+
+.panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.panel__refresh {
+  border: 2px solid #000;
+  background: #fff;
+  font-family: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0.15rem 0.4rem;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.panel__refresh:hover {
+  background: #f0f0f0;
+  transform: rotate(8deg);
+}
+
+.panel__refresh:focus-visible {
+  outline: 3px solid #000;
+  outline-offset: 2px;
 }
 
 .stats__row {

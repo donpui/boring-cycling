@@ -9,6 +9,8 @@ import { updatePalletJacks, drawPalletJacks } from './entities/palletJack.js';
 import { drawBloodSplat } from './entities/effects.js';
 import { checkCollision } from './utils.js';
 
+const INSTRUCTIONS_TEXT = 'Use the on-screen buttons on mobile or arrow keys on desktop.';
+
 export class Game {
     constructor(canvas, callbacks = {}) {
         this.canvas = canvas;
@@ -191,19 +193,33 @@ export class Game {
         const lineHeight = 22;
 
         this.ctx.font = '18px "Press Start 2P", monospace';
-        const lines = [];
-        const words = text.split(' ');
-        let current = '';
-        for (const word of words) {
-            const testLine = current ? `${current} ${word}` : word;
-            if (this.ctx.measureText(testLine).width <= maxTextWidth) {
-                current = testLine;
-            } else {
-                if (current) lines.push(current);
-                current = word;
+
+        const wrapText = (content) => {
+            if (!content) return [];
+            const lines = [];
+            const words = content.split(' ');
+            let current = '';
+            for (const word of words) {
+                const testLine = current ? `${current} ${word}` : word;
+                if (this.ctx.measureText(testLine).width <= maxTextWidth) {
+                    current = testLine;
+                } else {
+                    if (current) lines.push(current);
+                    current = word;
+                }
             }
+            if (current) lines.push(current);
+            return lines;
+        };
+
+        const lines = wrapText(text);
+        const instructionLines = wrapText(INSTRUCTIONS_TEXT);
+        if (instructionLines.length) {
+            if (lines.length) {
+                lines.push('');
+            }
+            lines.push(...instructionLines);
         }
-        if (current) lines.push(current);
 
         const boxHeight = lines.length * lineHeight + padding * 2;
         const boxX = (this.canvas.width - boxWidth) / 2;

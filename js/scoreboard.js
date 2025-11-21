@@ -24,6 +24,10 @@ export class Scoreboard {
         if (this.form) {
             this.form.addEventListener('submit', this.handleSubmit);
         }
+        const refreshButton = document.getElementById('refreshLeaderboard');
+        if (refreshButton) {
+            refreshButton.addEventListener('click', () => this.refreshLeaderboard());
+        }
 
         if (this.nameInput && this.storedName) {
             this.nameInput.value = this.storedName;
