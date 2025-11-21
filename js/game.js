@@ -181,7 +181,7 @@ export class Game {
 
         if (state.boss.car) {
             this.ctx.fillStyle = '#ff0000'; // Alert color
-            this.ctx.fillText('BOSS!', 12, 32);
+            this.ctx.fillText('CAR!', 12, 32);
         }
     }
 
