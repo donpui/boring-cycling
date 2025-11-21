@@ -21,6 +21,7 @@ export function spawnBossCar() {
         y: ROAD_PARAMS.horizon - BOSS_CAR_BASE.height * 0.6 - 40,
         groundY: ROAD_PARAMS.horizon,
         speed: 280 + state.difficulty * 50, // Reduced from 360
+        scored: false,
     };
 }
 
@@ -66,6 +67,10 @@ export function updateBossCar(seconds, speedMultiplier, bikeLowerRect, triggerCr
     }
 
     if (car.y > CANVAS_HEIGHT + car.height * 0.2) {
+        if (!car.scored) {
+            car.scored = true;
+            state.avoided += 10;
+        }
         boss.car = null;
         boss.nextSpawn += BOSS_INTERVAL;
     }

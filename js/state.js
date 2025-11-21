@@ -21,6 +21,7 @@ export const state = {
     message: 'Tap any button or press space to ride',
     wheelRotation: 0,
     speedKmh: 25,
+    topSpeed: 25,
     boss: {
         nextSpawn: BOSS_INTERVAL,
         car: null,
@@ -44,6 +45,7 @@ export function resetState() {
     state.message = '';
     state.wheelRotation = 0;
     state.speedKmh = 25;
+    state.topSpeed = 25;
     state.boss = {
         nextSpawn: BOSS_INTERVAL,
         car: null,

@@ -10,12 +10,14 @@ import { drawBloodSplat } from './entities/effects.js';
 import { checkCollision } from './utils.js';
 
 export class Game {
-    constructor(canvas) {
+    constructor(canvas, callbacks = {}) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
         this.ctx.imageSmoothingEnabled = false; // Important for pixel art
 
         this.lastTime = 0;
+        this.callbacks = callbacks;
+        this.isGameRunning = false;
 
         initInput(() => {
             if (state.status !== 'playing') {
@@ -29,6 +31,10 @@ export class Game {
 
     reset() {
         resetState();
+        this.isGameRunning = true;
+        if (typeof this.callbacks.onGameStart === 'function') {
+            this.callbacks.onGameStart();
+        }
     }
 
     triggerCrash(cause = 'generic', x = 0, y = 0) {
@@ -45,6 +51,13 @@ export class Game {
             x: state.bicycle.x + state.bicycle.width / 2,
             y: state.bicycle.y + state.bicycle.height
         });
+
+        if (this.isGameRunning) {
+            this.isGameRunning = false;
+            if (typeof this.callbacks.onGameOver === 'function') {
+                this.callbacks.onGameOver(state.avoided, state.topSpeed);
+            }
+        }
     }
 
     update(delta) {
@@ -96,6 +109,7 @@ export class Game {
         state.difficulty = difficultyRamp;
         // Display a road speed starting at 25 km/h, climbing by ~1 km/h every 5 seconds of play
         state.speedKmh = Math.min(120, Math.floor(25 + state.elapsed / 5000));
+        state.topSpeed = Math.max(state.topSpeed, state.speedKmh);
         this.updateCounters();
 
         state.spawnInterval = Math.max(700, 2200 - state.elapsed / 40); // Slower spawn rate increase
