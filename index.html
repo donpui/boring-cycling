@@ -45,21 +45,45 @@
       <h1>Boring Cycling</h1>
     </header>
     <section class="layout">
-      <section class="stage">
-        <canvas id="gameCanvas" width="360" height="560" aria-label="Bicycle endless runner"></canvas>
-        <div class="controls" aria-label="Touch controls">
-          <div class="controls__row">
-            <button class="control-btn" type="button" aria-label="Move left" data-control="left">Left</button>
-            <button class="control-btn" type="button" aria-label="Move up" data-control="up">Up</button>
-            <button class="control-btn" type="button" aria-label="Move down" data-control="down">Down</button>
-            <button class="control-btn" type="button" aria-label="Move right" data-control="right">Right</button>
-          </div>
+      <div class="stage-shell">
+        <section class="stage">
+          <canvas id="gameCanvas" width="360" height="560" aria-label="Bicycle endless runner"></canvas>
+          <div class="controls" aria-label="Touch controls">
+            <div class="controls__row">
+              <button class="control-btn" type="button" aria-label="Move left" data-control="left">Left</button>
+              <button class="control-btn" type="button" aria-label="Move up" data-control="up">Up</button>
+              <button class="control-btn" type="button" aria-label="Move down" data-control="down">Down</button>
+              <button class="control-btn" type="button" aria-label="Move right" data-control="right">Right</button>
+            </div>
 
+          </div>
+        </section>
+        <div id="scoreOverlay" class="score-overlay" aria-live="polite" hidden>
+          <form id="scoreForm" class="score-form score-overlay__panel">
+            <div class="score-form__header">
+              <h2>Save Your Run</h2>
+              <button type="button" id="closeScoreOverlay" class="score-overlay__close" aria-label="Play anonymously">×</button>
+            </div>
+            <p class="score-overlay__hint">Add a rider name to appear on the leaderboard. Close to keep playing anonymously.</p>
+            <div class="score-form__row">
+              <span>Last score:</span>
+              <strong id="lastScore">0</strong>
+            </div>
+            <label class="score-form__label">
+              <span>Name</span>
+              <input type="text" id="playerName" name="playerName" placeholder="Bill On Bike" maxlength="64" autocomplete="name">
+            </label>
+            <button type="submit" id="saveScoreButton">Save score</button>
+            <p id="scoreStatus" class="score-form__status" role="status"></p>
+          </form>
         </div>
-      </section>
+      </div>
       <div class="sidebar">
         <section class="stats panel">
-          <h2>Ride Stats</h2>
+          <div class="panel__header">
+            <h2>Ride Stats</h2>
+            <button type="button" id="openScoreOverlay" class="panel__refresh" aria-label="Set your name">✎</button>
+          </div>
           <div class="stats__row">
             <span>Total rides</span>
             <strong id="overallRides">0</strong>
@@ -77,22 +101,6 @@
           </div>
           <ol id="leaderboardList" class="leaderboard__list" aria-live="polite"></ol>
           <p id="leaderboardEmpty" class="leaderboard__empty">Loading leaderboard...</p>
-        </section>
-        <section class="score-submit panel" aria-live="polite" hidden>
-          <h2>Save Your Run</h2>
-          <p>Every ride is logged. Add your name to appear on the leaderboard.</p>
-          <form id="scoreForm" class="score-form">
-            <div class="score-form__row">
-              <span>Last score:</span>
-              <strong id="lastScore">0</strong>
-            </div>
-            <label class="score-form__label">
-              <span>Name (optional)</span>
-              <input type="text" id="playerName" name="playerName" placeholder="Bill On Bike" maxlength="64" autocomplete="off">
-            </label>
-            <button type="submit" id="saveScoreButton">Save score</button>
-            <p id="scoreStatus" class="score-form__status" role="status"></p>
-          </form>
         </section>
       </div>
     </section>

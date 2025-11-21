@@ -101,7 +101,7 @@ async function handleCreateScore(req, res) {
         return;
     }
 
-    const name = rawName && rawName.trim() !== '' ? rawName.trim().slice(0, 64) : null;
+    const name = rawName && rawName.trim() !== '' ? rawName.trim().slice(0, 30) : null;
     const topSpeedVal = Number(rawSpeed);
     const topSpeed = Number.isFinite(topSpeedVal) && topSpeedVal > 0 ? Math.floor(topSpeedVal) : null;
 
@@ -162,5 +162,5 @@ function normalizeName(name) {
         return '';
     }
     const trimmed = name.trim();
-    return trimmed ? trimmed.slice(0, 64) : '';
+    return trimmed ? trimmed.slice(0, 30) : '';
 }

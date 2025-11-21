@@ -5,13 +5,16 @@ export class Scoreboard {
         this.lastScoreId = null;
         this.lastScoreValue = 0;
         this.storageKey = 'boring-cycling-name';
+        this.anonymousKey = 'boring-cycling-anon';
         this.storedName = this.loadStoredName();
+        this.anonymousOptOut = this.loadAnonymousPreference();
         this.form = document.getElementById('scoreForm');
         this.nameInput = document.getElementById('playerName');
         this.saveButton = document.getElementById('saveScoreButton');
         this.statusEl = document.getElementById('scoreStatus');
         this.lastScoreEl = document.getElementById('lastScore');
-        this.container = document.querySelector('.score-submit');
+        this.container = document.getElementById('scoreOverlay');
+        this.closeButton = document.getElementById('closeScoreOverlay');
         this.leaderboardList = document.getElementById('leaderboardList');
         this.leaderboardEmpty = document.getElementById('leaderboardEmpty');
         this.overallRidesEl = document.getElementById('overallRides');
@@ -24,9 +27,25 @@ export class Scoreboard {
         if (this.form) {
             this.form.addEventListener('submit', this.handleSubmit);
         }
+        if (this.closeButton) {
+            this.closeButton.addEventListener('click', () => {
+                this.setAnonymousPreference(true);
+                this.setStatus('Playing anonymously. Scores will still be saved.', 'info');
+                this.toggleForm(false);
+            });
+        }
         const refreshButton = document.getElementById('refreshLeaderboard');
         if (refreshButton) {
             refreshButton.addEventListener('click', () => this.refreshLeaderboard());
+        }
+
+        const openOverlayBtn = document.getElementById('openScoreOverlay');
+        if (openOverlayBtn) {
+            openOverlayBtn.addEventListener('click', () => {
+                this.toggleForm(true);
+                this.setAnonymousPreference(false);
+                this.setStatus('Add your rider name to appear on the leaderboard.', 'info');
+            });
         }
 
         if (this.nameInput && this.storedName) {
@@ -59,7 +78,6 @@ export class Scoreboard {
             this.lastScoreEl.textContent = score.toString();
         }
 
-        this.toggleForm(true);
         this.setBusy(true);
         this.setStatus('Saving your score...');
 
@@ -70,8 +88,12 @@ export class Scoreboard {
             if (this.storedName) {
                 await this.saveNameToScore(this.storedName);
                 this.setStatus(`Saved as ${this.storedName}.`, 'success');
+            } else if (this.shouldPromptForName()) {
+                this.toggleForm(true);
+                this.setStatus('Score saved. Add your name to appear on the leaderboard.', 'info');
             } else {
-                this.setStatus('Score saved. Add your name to appear on the leaderboard.', 'success');
+                this.toggleForm(false);
+                this.setStatus('Score saved anonymously.', 'info');
             }
             shouldRefresh = true;
         } catch (error) {
@@ -88,14 +110,25 @@ export class Scoreboard {
 
     async handleSubmit(event) {
         event.preventDefault();
+        const name = this.normalizeNameInput();
         if (!this.lastScoreId) {
-            this.setStatus('Finish a run to save your score.', 'error');
+            if (!name) {
+                this.setAnonymousPreference(true);
+                this.toggleForm(false);
+                this.setStatus('Playing anonymously. Scores saved without a name.', 'info');
+            } else {
+                this.setStoredName(name);
+                this.setAnonymousPreference(false);
+                this.toggleForm(false);
+                this.setStatus('Name saved! Finish a ride to appear on the leaderboard.', 'success');
+            }
             return;
         }
 
-        const name = this.nameInput ? this.nameInput.value.trim() : '';
         if (!name) {
-            this.setStatus('Score saved anonymously. Enter a name to feature on the leaderboard.', 'info');
+            this.setAnonymousPreference(true);
+            this.toggleForm(false);
+            this.setStatus('Playing anonymously. Scores saved without a name.', 'info');
             return;
         }
 
@@ -103,6 +136,7 @@ export class Scoreboard {
         try {
             await this.saveNameToScore(name);
             this.setStatus('Name saved! You are on the leaderboard.', 'success');
+            this.toggleForm(false);
             await this.refreshLeaderboard();
         } catch (error) {
             console.error(error);
@@ -114,7 +148,7 @@ export class Scoreboard {
 
     async saveNameToScore(name) {
         if (!this.lastScoreId) return;
-        const trimmed = name.trim();
+        const trimmed = this.normalizeNameInput(name);
         await updateScoreName(this.lastScoreId, trimmed);
         this.setStoredName(trimmed);
         if (this.nameInput) {
@@ -148,7 +182,6 @@ export class Scoreboard {
 
         this.showLeaderboardMessage('', false);
 
-        const best = entries[0];
         entries.forEach((entry, index) => {
             const item = document.createElement('li');
             item.className = 'leaderboard__item';
@@ -167,6 +200,9 @@ export class Scoreboard {
     toggleForm(isVisible) {
         if (!this.container) return;
         this.container.hidden = !isVisible;
+        if (isVisible && this.nameInput) {
+            this.nameInput.focus();
+        }
     }
 
     setBusy(isBusy) {
@@ -205,7 +241,7 @@ export class Scoreboard {
             this.playerRidesEl.textContent = playerCount.toLocaleString();
         }
         if (this.playerRidesHint) {
-            this.playerRidesHint.hidden = Boolean(this.storedName);
+            this.playerRidesHint.hidden = Boolean(this.storedName) || this.anonymousOptOut;
         }
         this.updatePlayerLabel();
     }
@@ -218,7 +254,7 @@ export class Scoreboard {
             this.playerRidesLabel.textContent = 'Your rides';
         }
         if (this.playerRidesHint) {
-            this.playerRidesHint.hidden = Boolean(this.storedName);
+            this.playerRidesHint.hidden = Boolean(this.storedName) || this.anonymousOptOut;
         }
     }
 
@@ -231,7 +267,7 @@ export class Scoreboard {
     }
 
     setStoredName(name) {
-        const trimmed = name.trim();
+        const trimmed = this.normalizeNameInput(name);
         this.storedName = trimmed;
         try {
             if (trimmed) {
@@ -242,8 +278,43 @@ export class Scoreboard {
         } catch {
             // ignore storage errors
         }
+        if (trimmed) {
+            this.setAnonymousPreference(false);
+        }
         this.updatePlayerLabel();
         return trimmed;
+    }
+
+    shouldPromptForName() {
+        return !this.storedName && !this.anonymousOptOut;
+    }
+
+    loadAnonymousPreference() {
+        try {
+            return window.localStorage.getItem(this.anonymousKey) === '1';
+        } catch {
+            return false;
+        }
+    }
+
+    setAnonymousPreference(isAnonymous) {
+        this.anonymousOptOut = Boolean(isAnonymous);
+        try {
+            if (this.anonymousOptOut) {
+                window.localStorage.setItem(this.anonymousKey, '1');
+            } else {
+                window.localStorage.removeItem(this.anonymousKey);
+            }
+        } catch {
+            // ignore
+        }
+        this.updatePlayerLabel();
+    }
+
+    normalizeNameInput(input) {
+        const raw = typeof input === 'string' ? input : this.nameInput?.value || '';
+        const trimmed = raw.trim().replace(/[^\w\s'-]/g, '');
+        return trimmed.slice(0, 30);
     }
 }
 
